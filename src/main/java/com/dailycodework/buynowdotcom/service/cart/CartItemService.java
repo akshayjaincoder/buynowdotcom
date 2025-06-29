@@ -35,12 +35,14 @@ public class CartItemService implements ICartItemService {
      */
     @Override
     public CartItemDTO addItemToCart(Long productId, int quantity) {
-        UserDTO user = userService.getAuthenticatedUser();
-        CartDTO cartDTO = user.getCart();
-        if(cartDTO == null) {
-            cartDTO = cartService.initializeNewCartForUser(user.getId());
+        var userId = userService.getAuthenticatedUser().getId();
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+
+        if(cart == null) {
+            var cartDTO = cartService.initializeNewCartForUser(userId);
+            cart = mapper.map(cartDTO, Cart.class);
         }
-        Cart cart = mapper.map(cartDTO, Cart.class);
+        
         Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found!"));
         CartItem cartItem = cart
                 .getItems()

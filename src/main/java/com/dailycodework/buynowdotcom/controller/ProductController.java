@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(value = "http://localhost:5100")
 @RestController
 @RequestMapping("${api.prefix}/products")
 public class ProductController {
@@ -61,6 +62,20 @@ public class ProductController {
         return ResponseEntity
                 .ok()
                 .body(new ApiResponse(productService.getProductsByBrand(brand), false));
+    }
+
+    @GetMapping("/get/distinct")
+    public ResponseEntity<ApiResponse> getDistinctProductsByName() {
+        return ResponseEntity
+                .ok()
+                .body(new ApiResponse(productService.getDistinctProductsByName(), false));
+    }
+
+    @GetMapping("/get/distinct/brands")
+    public ResponseEntity<ApiResponse> getDistinctBrands() {
+        return ResponseEntity
+                .ok()
+                .body(new ApiResponse(productService.getDistinctBrands(), false));
     }
 
     @PostMapping("/add")

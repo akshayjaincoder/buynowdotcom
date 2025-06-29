@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
 
+@CrossOrigin(value = "http://localhost:5100")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/category")

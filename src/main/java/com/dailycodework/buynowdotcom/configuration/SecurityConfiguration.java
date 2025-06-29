@@ -1,4 +1,4 @@
-package com.dailycodework.buynowdotcom.security.configuration;
+package com.dailycodework.buynowdotcom.configuration;
 
 import com.dailycodework.buynowdotcom.security.jwt.JwtAuthenticationFilter;
 import com.dailycodework.buynowdotcom.security.jwt.JwtEntryPoint;
@@ -76,7 +76,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(request -> request.requestMatchers(SECURED_APIS.toArray(String[]::new)).authenticated().anyRequest().permitAll())
+//                .authorizeHttpRequests(request -> request.requestMatchers(SECURED_APIS.toArray(String[]::new)).authenticated().anyRequest().permitAll())
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();

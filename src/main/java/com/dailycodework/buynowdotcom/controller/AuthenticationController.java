@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +40,10 @@ public class AuthenticationController {
     private String refreshTokenExpirationTime;
 
     @PostMapping("/token")
+    @Operation(summary = "Generate JWT Token", description = "Authentication using JWT token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token generated successfully")
+    })
     public ResponseEntity<?> generateToken(@RequestBody LoginRequest loginRequest,
                                            HttpServletResponse response) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());

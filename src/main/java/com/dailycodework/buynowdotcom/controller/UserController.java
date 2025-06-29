@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(value = "http://localhost:5100")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/users")

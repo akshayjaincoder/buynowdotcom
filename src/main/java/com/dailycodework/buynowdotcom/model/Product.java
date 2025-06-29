@@ -35,7 +35,7 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Image> images;
 

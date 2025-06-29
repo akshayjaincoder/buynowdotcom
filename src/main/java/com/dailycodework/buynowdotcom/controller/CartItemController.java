@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
+@CrossOrigin(value = "http://localhost:5100")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/cart-item")

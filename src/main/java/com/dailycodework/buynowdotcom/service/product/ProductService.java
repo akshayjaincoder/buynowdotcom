@@ -12,14 +12,16 @@ import com.dailycodework.buynowdotcom.utils.MappingUtil;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ProductService implements IProductService{
 
@@ -158,7 +160,44 @@ public class ProductService implements IProductService{
     @Override
     public List<ProductDTO> getProductsByBrand(String brand) {
 
-        return productRepository.findByBrand(brand).stream().map(this::getProductDTO).toList();
+        CompletableFuture<List<Product>> futureProducts = productRepository.findByBrand(brand);
+
+        CompletableFuture<List<ProductDTO>> futureProductDTOs = futureProducts
+                .thenApply(this::getAsyncProductDTOs)
+                .exceptionally(ex -> {
+                    System.err.println("Error: " + ex.getMessage());
+                    return null;
+                });
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        log.info("Is async process done? {}", futureProductDTOs.isDone());
+
+        return futureProductDTOs.resultNow();
+    }
+
+    /**
+     * @return List of distinct products filtered by name
+     */
+    @Override
+    public List<ProductDTO> getDistinctProductsByName() {
+        List<ProductDTO> productDTOS = getAllProducts();
+        Map<String, ProductDTO> productDTOMap = productDTOS
+                .stream()
+                .collect(Collectors.toMap(ProductDTO::getName, productDTO -> productDTO, (existing, replacement) -> existing));
+        return productDTOMap.values().stream().toList();
+    }
+
+    /**
+     * @return List of distinct brands
+     */
+    @Override
+    public List<String> getDistinctBrands() {
+        return getAllProducts().stream().map(ProductDTO::getBrand).distinct().toList();
     }
 
     private boolean productExists(String productName, String brand) {
@@ -198,5 +237,29 @@ public class ProductService implements IProductService{
         CategoryDTO categoryDTO = modelMapper.map(category, CategoryDTO.class);
         productDTO.setCategory(categoryDTO);
         return productDTO;
+    }
+
+    private List<ProductDTO> getAsyncProductDTOs(List<Product> products) {
+
+        return products.stream().map((product) -> ProductDTO
+                .builder()
+                .name(product.getName())
+                .brand(product.getBrand())
+                .id(product.getId())
+                .description(product.getDescription())
+                .category(CategoryDTO
+                        .builder()
+                        .name(product.getCategory().getName())
+                        .id(product.getCategory().getId())
+                        .build())
+                .price(product.getPrice())
+                .images(product.getImages().stream().map(image -> ImageDTO
+                        .builder()
+                        .id(image.getId())
+                        .fileName(image.getFileName())
+                        .downloadUrl(image.getDownloadUrl())
+                        .fileType(image.getFileType())
+                        .build()).toList())
+                .build()).toList();
     }
 }
